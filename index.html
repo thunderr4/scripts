@@ -36,6 +36,7 @@ align-items: center;
 gap: 10px;
 }
 
+/* menu */
 #menuBtn {
 cursor: pointer;
 padding: 4px 8px;
@@ -44,6 +45,17 @@ border-radius: 6px;
 font-weight: 900;
 }
 
+/* logo */
+#logo {
+width: 34px;
+height: 34px;
+border-radius: 50%;
+object-fit: cover;
+border: 1px solid #2a2a2a;
+background: #111;
+}
+
+/* title */
 #title {
 font-weight: 900;
 }
@@ -55,65 +67,75 @@ color: #fff;
 border: 1px solid #2a2a2a;
 padding: 7px 10px;
 border-radius: 6px;
-cursor: pointer;
 font-weight: 900;
+cursor: pointer;
 }
 
 button:hover {
 border-color: #fff;
 }
 
-/* script card */
+/* sidebar */
+#sidebar {
+position: fixed;
+top: 0;
+left: -260px;
+width: 220px;
+height: 100%;
+background: #0a0a0a;
+border-right: 1px solid #1a1a1a;
+padding: 16px;
+transition: 0.3s ease;
+z-index: 10;
+}
+
+#sidebar.open {
+left: 0;
+}
+
+#sideTop {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
+
+#closeBtn {
+cursor: pointer;
+border: 1px solid #2a2a2a;
+padding: 2px 8px;
+border-radius: 6px;
+}
+
+/* scripts */
+#container {
+padding: 16px;
+}
+
 .script {
 border: 1px solid #1a1a1a;
-border-radius: 10px;
 padding: 12px;
+border-radius: 8px;
 margin: 10px 0;
 background: #000;
+cursor: pointer;
 }
 
-.scriptTop {
-display: flex;
-gap: 10px;
-align-items: center;
-}
-
-.script img {
-width: 45px;
-height: 45px;
-border-radius: 8px;
-object-fit: cover;
-border: 1px solid #222;
-}
-
-.name {
+.namebox {
+background: #0a0a0a;
+border: 1px solid #1f1f1f;
+padding: 8px 10px;
+border-radius: 6px;
 font-weight: 900;
-font-size: 15px;
 }
 
 .date {
 font-size: 12px;
 color: #aaa;
+margin-top: 4px;
 }
 
-/* actions row */
-.actions {
-display: flex;
-gap: 6px;
-margin-top: 10px;
-flex-wrap: wrap;
-}
-
-.tag {
-font-weight: 900;
-font-size: 12px;
-color: #fff;
-border: 1px solid #2a2a2a;
-padding: 4px 8px;
-border-radius: 6px;
-}
-
-/* modal */
+/* modals */
 .modal {
 position: fixed;
 inset: 0;
@@ -144,7 +166,7 @@ outline: none;
 }
 
 textarea {
-height: 70px;
+height: 80px;
 resize: none;
 }
 </style>
@@ -152,14 +174,28 @@ resize: none;
 
 <body>
 
+<!-- sidebar -->
+<div id="sidebar">
+
+<div id="sideTop">
+<div style="font-weight:900;">categories</div>
+<div id="closeBtn" onclick="toggleSidebar()">x</div>
+</div>
+
+</div>
+
+<!-- topbar -->
 <div id="topbar">
 
 <div id="left">
-<div id="menuBtn">☰</div>
+<div id="menuBtn" onclick="toggleSidebar()">☰</div>
+
+<img id="logo" src="images/logo.png">
+
 <div id="title">thunder's scripts</div>
 </div>
 
-<button onclick="openLogin()">login</button>
+<button id="loginBtn" onclick="openLogin()">login</button>
 
 </div>
 
@@ -168,20 +204,22 @@ resize: none;
 <!-- login -->
 <div class="modal" id="loginModal">
 <div class="box">
-<div class="tag">login</div>
-<input id="pass">
-<button onclick="login()">enter</button>
+<div style="font-weight:900;">login</div>
+<input id="pass" placeholder="enter password">
+<button onclick="checkLogin()">enter</button>
 </div>
 </div>
 
 <!-- add script -->
 <div class="modal" id="addModal">
 <div class="box">
-<div class="tag">add script</div>
+<div style="font-weight:900;">add script</div>
 
-<input id="name" placeholder="name">
-<input id="img" placeholder="image url (optional)">
-<textarea id="content" placeholder="script content"></textarea>
+<div>script name</div>
+<input id="name">
+
+<div>script content</div>
+<textarea id="content"></textarea>
 
 <button onclick="addScript()">submit</button>
 </div>
@@ -192,12 +230,17 @@ let loggedIn = false;
 
 let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
 
+/* sidebar */
+function toggleSidebar() {
+document.getElementById("sidebar").classList.toggle("open");
+}
+
 /* login */
 function openLogin() {
 document.getElementById("loginModal").style.display = "flex";
 }
 
-function login() {
+function checkLogin() {
 let pass = document.getElementById("pass").value;
 
 if (pass !== "test") {
@@ -208,13 +251,24 @@ return;
 
 loggedIn = true;
 document.getElementById("loginModal").style.display = "none";
+
+/* remove login button */
+document.getElementById("loginBtn").remove();
+
+/* add script button */
+let btn = document.createElement("button");
+btn.innerText = "+ add script";
+btn.onclick = () => {
+document.getElementById("addModal").style.display = "flex";
+};
+
+document.getElementById("topbar").appendChild(btn);
 }
 
 /* add script */
 function addScript() {
 let name = document.getElementById("name").value;
 let content = document.getElementById("content").value;
-let img = document.getElementById("img").value || "https://via.placeholder.com/80";
 
 if (!name || !content) return;
 
@@ -222,8 +276,6 @@ scripts.push({
 id: crypto.randomUUID(),
 name,
 content,
-img,
-likes: 0,
 date: new Date().toLocaleDateString()
 });
 
@@ -233,25 +285,9 @@ document.getElementById("addModal").style.display = "none";
 render();
 }
 
-/* actions */
-function like(id) {
-let s = scripts.find(x => x.id === id);
-s.likes++;
-localStorage.setItem("scripts", JSON.stringify(scripts));
-render();
-}
-
-function copy(content) {
-navigator.clipboard.writeText(content);
-alert("copied");
-}
-
-function downloadScript(s) {
-let blob = new Blob([s.content], {type: "text/plain"});
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = s.name + ".txt";
-a.click();
+/* open script page */
+function openScript(id) {
+window.location.href = "script.html?id=" + id;
 }
 
 /* render */
@@ -260,25 +296,14 @@ let container = document.getElementById("container");
 container.innerHTML = "";
 
 scripts.forEach(s => {
-
 let div = document.createElement("div");
 div.className = "script";
 
-div.innerHTML = `
-<div class="scriptTop">
-<img src="${s.img}">
-<div>
-<div class="name">${s.name}</div>
-<div class="date">added ${s.date}</div>
-</div>
-</div>
+div.onclick = () => openScript(s.id);
 
-<div class="actions">
-<div class="tag">likes: ${s.likes}</div>
-<button onclick="like('${s.id}')">like</button>
-<button onclick="copy(\`${s.content}\`)">copy</button>
-<button onclick="downloadScript(${JSON.stringify(s).replace(/"/g, '&quot;')})">download</button>
-</div>
+div.innerHTML = `
+<div class="namebox">${s.name}</div>
+<div class="date">added ${s.date}</div>
 `;
 
 container.appendChild(div);
