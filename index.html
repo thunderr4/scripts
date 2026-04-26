@@ -21,31 +21,26 @@ display: flex;
 align-items: center;
 justify-content: space-between;
 padding: 14px;
-background: #000;
 border-bottom: 1px solid #1a1a1a;
 }
 
-/* left title area */
 #left {
 display: flex;
 align-items: center;
 gap: 10px;
 }
 
-/* circle image */
 #logo {
 width: 34px;
 height: 34px;
 border-radius: 50%;
-background: #111;
 object-fit: cover;
 border: 1px solid #333;
+background: #111;
 }
 
-/* title */
 #title {
 font-weight: 900;
-letter-spacing: 1px;
 }
 
 /* button */
@@ -74,12 +69,15 @@ border: 1px solid #1a1a1a;
 padding: 12px;
 margin: 10px 0;
 border-radius: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
 font-weight: 700;
-background: #000;
 }
 
-.script:hover {
-border-color: #fff;
+.script button {
+padding: 6px 10px;
+font-size: 12px;
 }
 </style>
 </head>
@@ -87,42 +85,56 @@ border-color: #fff;
 <body>
 
 <div id="topbar">
-
 <div id="left">
 <img id="logo" src="images/logo.png">
 <div id="title">thunder's scripts</div>
 </div>
 
-<button onclick="createScript()">create</button>
-
+<button onclick="devPanel()">dev</button>
 </div>
 
-<div id="container">
-
-<div class="script">sprint system</div>
-<div class="script">round system</div>
-<div class="script">ui handler</div>
-
-</div>
+<div id="container"></div>
 
 <script>
-function createScript() {
+let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
+
+function render() {
+let container = document.getElementById("container");
+container.innerHTML = "";
+
+for (let i = 0; i < scripts.length; i++) {
+let div = document.createElement("div");
+div.className = "script";
+
+div.innerHTML = `
+<span>${scripts[i]}</span>
+<button onclick="deleteScript(${i})">delete</button>
+`;
+
+container.appendChild(div);
+}
+}
+
+function devPanel() {
 let pass = prompt("enter password");
 
-if (pass !== "test") {
-alert("wrong password");
-return;
-}
+if (pass !== "test") return;
 
 let name = prompt("script name");
 if (!name) return;
 
-let div = document.createElement("div");
-div.className = "script";
-div.innerText = name;
-
-document.getElementById("container").appendChild(div);
+scripts.push(name);
+localStorage.setItem("scripts", JSON.stringify(scripts));
+render();
 }
+
+function deleteScript(index) {
+scripts.splice(index, 1);
+localStorage.setItem("scripts", JSON.stringify(scripts));
+render();
+}
+
+render();
 </script>
 
 </body>
