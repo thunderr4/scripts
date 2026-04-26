@@ -10,7 +10,7 @@
 
 body {
 margin: 0;
-font-family: Inter, Arial;
+font-family: Inter;
 background: #000;
 color: #fff;
 opacity: 0;
@@ -21,11 +21,11 @@ animation: fadein 0.5s ease forwards;
 to { opacity: 1; }
 }
 
-/* top bar */
+/* topbar */
 #topbar {
 display: flex;
-align-items: center;
 justify-content: space-between;
+align-items: center;
 padding: 12px;
 border-bottom: 1px solid #1a1a1a;
 }
@@ -37,21 +37,11 @@ gap: 10px;
 }
 
 #menuBtn {
-font-size: 22px;
 cursor: pointer;
+font-size: 22px;
 padding: 4px 8px;
 border: 1px solid #2a2a2a;
 border-radius: 6px;
-}
-
-/* logo */
-#logo {
-width: 32px;
-height: 32px;
-border-radius: 50%;
-object-fit: cover;
-border: 1px solid #333;
-background: #111;
 }
 
 #title {
@@ -65,80 +55,59 @@ color: #fff;
 border: 1px solid #2a2a2a;
 padding: 7px 10px;
 border-radius: 6px;
-font-weight: 700;
 cursor: pointer;
+font-weight: 700;
 }
 
-button:hover {
-border-color: #fff;
-}
-
-/* sidebar (fully hidden now) */
+/* sidebar */
 #sidebar {
 position: fixed;
+left: -240px;
 top: 0;
-left: -260px;
-width: 220px;
+width: 200px;
 height: 100%;
 background: #0a0a0a;
 border-right: 1px solid #1a1a1a;
 padding: 16px;
 transition: 0.3s ease;
-z-index: 10;
 }
 
 #sidebar.open {
 left: 0;
 }
 
-/* sidebar header */
 #sideTop {
 display: flex;
 justify-content: space-between;
 align-items: center;
-margin-bottom: 10px;
 }
 
-#sideTitle {
-font-weight: 900;
-}
-
-/* X button */
-#closeBtn {
+#close {
 cursor: pointer;
-font-size: 18px;
 border: 1px solid #2a2a2a;
 padding: 2px 8px;
 border-radius: 6px;
 }
 
-.cat {
-padding: 8px;
-border: 1px solid #1f1f1f;
-border-radius: 6px;
-margin-bottom: 8px;
-font-size: 13px;
-}
-
-/* container */
+/* scripts */
 #container {
 padding: 16px;
 }
 
-/* script */
 .script {
 border: 1px solid #1a1a1a;
-border-radius: 8px;
 padding: 12px;
+border-radius: 8px;
 margin: 10px 0;
+cursor: pointer;
 background: #000;
 }
 
 .namebox {
 background: #0a0a0a;
-border: 1px solid #1f1f1f;
-padding: 8px 10px;
+padding: 8px;
 border-radius: 6px;
+border: 1px solid #1f1f1f;
 font-weight: 900;
 }
 
@@ -147,30 +116,59 @@ font-size: 12px;
 color: #aaa;
 margin-top: 4px;
 }
+
+/* modals */
+.modal {
+position: fixed;
+inset: 0;
+display: none;
+align-items: center;
+justify-content: center;
+background: rgba(0,0,0,0.85);
+}
+
+.box {
+background: #0a0a0a;
+border: 1px solid #2a2a2a;
+padding: 16px;
+border-radius: 10px;
+width: 280px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+input, textarea {
+background: #000;
+color: #fff;
+border: 1px solid #2a2a2a;
+padding: 8px;
+border-radius: 6px;
+outline: none;
+}
+
+textarea {
+height: 80px;
+resize: none;
+}
 </style>
 </head>
 
 <body>
 
+<!-- sidebar -->
 <div id="sidebar">
-
 <div id="sideTop">
-<div id="sideTitle">categories</div>
-<div id="closeBtn" onclick="toggleSidebar()">x</div>
+<div>categories</div>
+<div id="close" onclick="toggleSidebar()">x</div>
+</div>
 </div>
 
-<div class="cat">all</div>
-<div class="cat">ui</div>
-<div class="cat">combat</div>
-<div class="cat">systems</div>
-
-</div>
-
+<!-- topbar -->
 <div id="topbar">
 
 <div id="left">
 <div id="menuBtn" onclick="toggleSidebar()">☰</div>
-<img id="logo" src="images/logo.png">
 <div id="title">thunder's scripts</div>
 </div>
 
@@ -180,31 +178,93 @@ margin-top: 4px;
 
 <div id="container"></div>
 
-<script>
-let sidebarOpen = false;
+<!-- login -->
+<div class="modal" id="loginModal">
+<div class="box">
+<div>login</div>
+<input id="pass">
+<button onclick="checkLogin()">enter</button>
+</div>
+</div>
 
+<!-- add script -->
+<div class="modal" id="addModal">
+<div class="box">
+<div>add script</div>
+
+<div>name</div>
+<input id="name">
+
+<div>content</div>
+<textarea id="content"></textarea>
+
+<button onclick="addScript()">submit</button>
+</div>
+</div>
+
+<script>
+let loggedIn = false;
+
+let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
+
+/* sidebar */
 function toggleSidebar() {
-sidebarOpen = !sidebarOpen;
 document.getElementById("sidebar").classList.toggle("open");
 }
 
-/* login system placeholder */
+/* login */
 function openLogin() {
-let pass = prompt("enter password");
-if (pass === "test") {
-alert("logged in");
-document.getElementById("loginBtn").remove();
-} else {
+document.getElementById("loginModal").style.display = "flex";
+}
+
+function checkLogin() {
+let pass = document.getElementById("pass").value;
+
+if (pass !== "test") {
+document.getElementById("loginModal").style.display = "none";
 alert("wrong password");
-}
+return;
 }
 
-/* demo scripts */
-let scripts = [
-{name:"sprint system", date:"today"},
-{name:"ui handler", date:"today"}
-];
+loggedIn = true;
+document.getElementById("loginModal").style.display = "none";
+document.getElementById("loginBtn").remove();
 
+let btn = document.createElement("button");
+btn.innerText = "+ add script";
+btn.onclick = () => {
+document.getElementById("addModal").style.display = "flex";
+};
+
+document.getElementById("topbar").appendChild(btn);
+}
+
+/* add script */
+function addScript() {
+let name = document.getElementById("name").value;
+let content = document.getElementById("content").value;
+
+if (!name || !content) return;
+
+scripts.push({
+id: crypto.randomUUID(),
+name,
+content,
+date: new Date().toLocaleDateString()
+});
+
+localStorage.setItem("scripts", JSON.stringify(scripts));
+
+document.getElementById("addModal").style.display = "none";
+render();
+}
+
+/* open script page */
+function openScript(id) {
+window.location.href = "script.html?id=" + id;
+}
+
+/* render */
 function render() {
 let container = document.getElementById("container");
 container.innerHTML = "";
@@ -212,6 +272,8 @@ container.innerHTML = "";
 scripts.forEach(s => {
 let div = document.createElement("div");
 div.className = "script";
+
+div.onclick = () => openScript(s.id);
 
 div.innerHTML = `
 <div class="namebox">${s.name}</div>
