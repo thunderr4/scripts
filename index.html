@@ -43,6 +43,29 @@ background: #111;
 font-weight: 900;
 }
 
+/* search */
+#searchwrap {
+display: flex;
+align-items: center;
+gap: 6px;
+border: 1px solid #2a2a2a;
+padding: 6px 10px;
+border-radius: 6px;
+background: #050505;
+}
+
+#searchwrap span {
+color: #aaa;
+font-size: 14px;
+}
+
+#search {
+background: transparent;
+border: none;
+outline: none;
+color: #fff;
+}
+
 /* button */
 button {
 background: #0a0a0a;
@@ -72,12 +95,56 @@ border-radius: 8px;
 display: flex;
 justify-content: space-between;
 align-items: center;
-font-weight: 700;
+}
+
+.meta {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.name {
+font-weight: 900;
+}
+
+.date {
+font-size: 12px;
+color: #aaa;
 }
 
 .script button {
 padding: 6px 10px;
 font-size: 12px;
+}
+
+/* popup */
+#popup {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.8);
+display: none;
+align-items: center;
+justify-content: center;
+}
+
+#box {
+background: #0a0a0a;
+border: 1px solid #2a2a2a;
+padding: 20px;
+border-radius: 10px;
+width: 260px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+#box input {
+padding: 8px;
+background: #000;
+border: 1px solid #2a2a2a;
+color: #fff;
+border-radius: 6px;
+outline: none;
 }
 </style>
 </head>
@@ -85,51 +152,82 @@ font-size: 12px;
 <body>
 
 <div id="topbar">
+
 <div id="left">
 <img id="logo" src="images/logo.png">
 <div id="title">thunder's scripts</div>
 </div>
 
-<button onclick="devPanel()">dev</button>
+<div id="searchwrap">
+<span>🔍</span>
+<input id="search" placeholder="search..." oninput="render()">
+</div>
+
+<button onclick="openLogin()">login</button>
+
 </div>
 
 <div id="container"></div>
+
+<!-- popup -->
+<div id="popup">
+<div id="box">
+<input id="pass" placeholder="enter password">
+<button onclick="login()">enter</button>
+</div>
+</div>
 
 <script>
 let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
 
 function render() {
 let container = document.getElementById("container");
+let search = document.getElementById("search").value.toLowerCase();
+
 container.innerHTML = "";
 
-for (let i = 0; i < scripts.length; i++) {
+scripts.forEach((s, i) => {
+if (search && !s.name.toLowerCase().includes(search)) return;
+
 let div = document.createElement("div");
 div.className = "script";
 
 div.innerHTML = `
-<span>${scripts[i]}</span>
+<div class="meta">
+<div class="name">${s.name}</div>
+<div class="date">added ${s.date}</div>
+</div>
 <button onclick="deleteScript(${i})">delete</button>
 `;
 
 container.appendChild(div);
-}
+});
 }
 
-function devPanel() {
-let pass = prompt("enter password");
+function openLogin() {
+document.getElementById("popup").style.display = "flex";
+}
+
+function login() {
+let pass = document.getElementById("pass").value;
 
 if (pass !== "test") return;
+
+document.getElementById("popup").style.display = "none";
 
 let name = prompt("script name");
 if (!name) return;
 
-scripts.push(name);
+let date = new Date().toLocaleDateString();
+
+scripts.push({ name, date });
+
 localStorage.setItem("scripts", JSON.stringify(scripts));
 render();
 }
 
-function deleteScript(index) {
-scripts.splice(index, 1);
+function deleteScript(i) {
+scripts.splice(i, 1);
 localStorage.setItem("scripts", JSON.stringify(scripts));
 render();
 }
