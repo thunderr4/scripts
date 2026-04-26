@@ -28,7 +28,6 @@ align-items: center;
 justify-content: space-between;
 padding: 12px;
 border-bottom: 1px solid #1a1a1a;
-gap: 10px;
 }
 
 #left {
@@ -50,44 +49,44 @@ background: #111;
 font-weight: 900;
 }
 
-/* search */
-#searchwrap {
-display: flex;
-align-items: center;
-gap: 6px;
-border: 1px solid #2a2a2a;
-padding: 6px 10px;
-border-radius: 6px;
-background: #050505;
-flex: 1;
-max-width: 320px;
-}
-
-#searchwrap span {
-color: #aaa;
-}
-
-#search {
-background: transparent;
-border: none;
-outline: none;
-color: #fff;
-width: 100%;
-}
-
-/* buttons */
-button {
-background: #0a0a0a;
-color: #fff;
-border: 1px solid #2a2a2a;
-padding: 7px 10px;
-border-radius: 6px;
-font-weight: 700;
+/* hamburger */
+#menuBtn {
+font-size: 22px;
 cursor: pointer;
+user-select: none;
+padding: 4px 8px;
+border: 1px solid #2a2a2a;
+border-radius: 6px;
 }
 
-button:hover {
-border-color: #fff;
+/* sidebar */
+#sidebar {
+position: fixed;
+top: 0;
+left: -220px;
+width: 200px;
+height: 100%;
+background: #0a0a0a;
+border-right: 1px solid #1a1a1a;
+padding: 16px;
+transition: 0.3s ease;
+}
+
+#sidebar.open {
+left: 0;
+}
+
+#sideTitle {
+font-weight: 900;
+margin-bottom: 10px;
+}
+
+.cat {
+padding: 8px;
+border: 1px solid #1f1f1f;
+border-radius: 6px;
+margin-bottom: 8px;
+font-size: 13px;
 }
 
 /* container */
@@ -107,13 +106,11 @@ align-items: center;
 background: #000;
 }
 
-/* fancy script name block */
 .namebox {
 background: #0a0a0a;
 border: 1px solid #1f1f1f;
 padding: 8px 10px;
 border-radius: 6px;
-display: inline-block;
 font-weight: 900;
 }
 
@@ -122,179 +119,64 @@ font-size: 12px;
 color: #aaa;
 margin-top: 4px;
 }
-
-/* left side of card */
-.meta {
-display: flex;
-flex-direction: column;
-}
-
-/* modal background */
-.modal {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.85);
-display: none;
-align-items: center;
-justify-content: center;
-}
-
-/* modal box */
-.box {
-background: #0a0a0a;
-border: 1px solid #2a2a2a;
-padding: 16px;
-border-radius: 10px;
-width: 260px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-text-align: center;
-}
-
-/* modal title */
-.boxtitle {
-font-weight: 900;
-font-size: 16px;
-}
-
-/* inputs */
-input {
-padding: 8px;
-background: #000;
-border: 1px solid #2a2a2a;
-color: #fff;
-border-radius: 6px;
-outline: none;
-}
 </style>
 </head>
 
 <body>
 
+<div id="sidebar">
+<div id="sideTitle">categories</div>
+
+<div class="cat">all</div>
+<div class="cat">ui</div>
+<div class="cat">combat</div>
+<div class="cat">systems</div>
+</div>
+
 <div id="topbar">
 
 <div id="left">
+<div id="menuBtn" onclick="toggleSidebar()">☰</div>
 <img id="logo" src="images/logo.png">
 <div id="title">thunder's scripts</div>
 </div>
-
-<div id="searchwrap">
-<span>🔍</span>
-<input id="search" placeholder="search..." oninput="render()">
-</div>
-
-<button onclick="openLogin()">login</button>
 
 </div>
 
 <div id="container"></div>
 
-<!-- login modal -->
-<div class="modal" id="loginModal">
-<div class="box">
-<div class="boxtitle">login</div>
-<input id="pass" placeholder="enter password">
-<button onclick="login()">enter</button>
-</div>
-</div>
-
-<!-- add script modal -->
-<div class="modal" id="addModal">
-<div class="box">
-<div class="boxtitle">add script</div>
-<input id="scriptName" placeholder="script name">
-<button onclick="addScript()">submit</button>
-</div>
-</div>
-
 <script>
-let loggedIn = false;
+let sidebarOpen = false;
 
-let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
+function toggleSidebar() {
+sidebarOpen = !sidebarOpen;
+document.getElementById("sidebar").classList.toggle("open");
+}
+
+/* demo scripts */
+let scripts = [
+{name:"sprint system", date:"today"},
+{name:"ui handler", date:"today"}
+];
 
 function render() {
 let container = document.getElementById("container");
-let search = document.getElementById("search").value.toLowerCase();
-
 container.innerHTML = "";
 
-scripts.forEach((s, i) => {
-if (search && !s.name.toLowerCase().includes(search)) return;
-
+scripts.forEach(s => {
 let div = document.createElement("div");
 div.className = "script";
 
 div.innerHTML = `
-<div class="meta">
+<div>
 <div class="namebox">${s.name}</div>
 <div class="date">added ${s.date}</div>
 </div>
-${loggedIn ? `<button onclick="deleteScript(${i})">delete</button>` : ""}
 `;
 
 container.appendChild(div);
 });
 }
-
-function openLogin() {
-document.getElementById("loginModal").style.display = "flex";
-}
-
-function login() {
-let pass = document.getElementById("pass").value;
-
-if (pass !== "test") {
-document.getElementById("loginModal").style.display = "none";
-alert("wrong password");
-return;
-}
-
-loggedIn = true;
-document.getElementById("loginModal").style.display = "none";
-render();
-}
-
-function openAdd() {
-document.getElementById("addModal").style.display = "flex";
-}
-
-function addScript() {
-let name = document.getElementById("scriptName").value;
-if (!name) return;
-
-let date = new Date().toLocaleDateString();
-
-scripts.push({ name, date });
-
-localStorage.setItem("scripts", JSON.stringify(scripts));
-
-document.getElementById("addModal").style.display = "none";
-document.getElementById("scriptName").value = "";
-
-render();
-}
-
-function deleteScript(i) {
-if (!loggedIn) return;
-
-scripts.splice(i, 1);
-localStorage.setItem("scripts", JSON.stringify(scripts));
-render();
-}
-
-/* inject add button only when logged in */
-setInterval(() => {
-let topbar = document.getElementById("topbar");
-
-if (loggedIn && !document.getElementById("addBtn")) {
-let btn = document.createElement("button");
-btn.innerText = "+ add script";
-btn.id = "addBtn";
-btn.onclick = openAdd;
-topbar.appendChild(btn);
-}
-}, 300);
 
 render();
 </script>
