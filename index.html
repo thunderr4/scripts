@@ -38,10 +38,10 @@ gap: 10px;
 
 #menuBtn {
 cursor: pointer;
-font-size: 22px;
 padding: 4px 8px;
 border: 1px solid #2a2a2a;
 border-radius: 6px;
+font-weight: 900;
 }
 
 #title {
@@ -56,68 +56,64 @@ border: 1px solid #2a2a2a;
 padding: 7px 10px;
 border-radius: 6px;
 cursor: pointer;
-font-weight: 700;
+font-weight: 900;
 }
 
-/* sidebar */
-#sidebar {
-position: fixed;
-left: -240px;
-top: 0;
-width: 200px;
-height: 100%;
-background: #0a0a0a;
-border-right: 1px solid #1a1a1a;
-padding: 16px;
-transition: 0.3s ease;
+button:hover {
+border-color: #fff;
 }
 
-#sidebar.open {
-left: 0;
-}
-
-#sideTop {
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-#close {
-cursor: pointer;
-border: 1px solid #2a2a2a;
-padding: 2px 8px;
-border-radius: 6px;
-}
-
-/* scripts */
-#container {
-padding: 16px;
-}
-
+/* script card */
 .script {
 border: 1px solid #1a1a1a;
+border-radius: 10px;
 padding: 12px;
-border-radius: 8px;
 margin: 10px 0;
-cursor: pointer;
 background: #000;
 }
 
-.namebox {
-background: #0a0a0a;
-padding: 8px;
-border-radius: 6px;
-border: 1px solid #1f1f1f;
+.scriptTop {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+
+.script img {
+width: 45px;
+height: 45px;
+border-radius: 8px;
+object-fit: cover;
+border: 1px solid #222;
+}
+
+.name {
 font-weight: 900;
+font-size: 15px;
 }
 
 .date {
 font-size: 12px;
 color: #aaa;
-margin-top: 4px;
 }
 
-/* modals */
+/* actions row */
+.actions {
+display: flex;
+gap: 6px;
+margin-top: 10px;
+flex-wrap: wrap;
+}
+
+.tag {
+font-weight: 900;
+font-size: 12px;
+color: #fff;
+border: 1px solid #2a2a2a;
+padding: 4px 8px;
+border-radius: 6px;
+}
+
+/* modal */
 .modal {
 position: fixed;
 inset: 0;
@@ -148,7 +144,7 @@ outline: none;
 }
 
 textarea {
-height: 80px;
+height: 70px;
 resize: none;
 }
 </style>
@@ -156,23 +152,14 @@ resize: none;
 
 <body>
 
-<!-- sidebar -->
-<div id="sidebar">
-<div id="sideTop">
-<div>categories</div>
-<div id="close" onclick="toggleSidebar()">x</div>
-</div>
-</div>
-
-<!-- topbar -->
 <div id="topbar">
 
 <div id="left">
-<div id="menuBtn" onclick="toggleSidebar()">☰</div>
+<div id="menuBtn">☰</div>
 <div id="title">thunder's scripts</div>
 </div>
 
-<button id="loginBtn" onclick="openLogin()">login</button>
+<button onclick="openLogin()">login</button>
 
 </div>
 
@@ -181,22 +168,20 @@ resize: none;
 <!-- login -->
 <div class="modal" id="loginModal">
 <div class="box">
-<div>login</div>
+<div class="tag">login</div>
 <input id="pass">
-<button onclick="checkLogin()">enter</button>
+<button onclick="login()">enter</button>
 </div>
 </div>
 
 <!-- add script -->
 <div class="modal" id="addModal">
 <div class="box">
-<div>add script</div>
+<div class="tag">add script</div>
 
-<div>name</div>
-<input id="name">
-
-<div>content</div>
-<textarea id="content"></textarea>
+<input id="name" placeholder="name">
+<input id="img" placeholder="image url (optional)">
+<textarea id="content" placeholder="script content"></textarea>
 
 <button onclick="addScript()">submit</button>
 </div>
@@ -207,17 +192,12 @@ let loggedIn = false;
 
 let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
 
-/* sidebar */
-function toggleSidebar() {
-document.getElementById("sidebar").classList.toggle("open");
-}
-
 /* login */
 function openLogin() {
 document.getElementById("loginModal").style.display = "flex";
 }
 
-function checkLogin() {
+function login() {
 let pass = document.getElementById("pass").value;
 
 if (pass !== "test") {
@@ -228,21 +208,13 @@ return;
 
 loggedIn = true;
 document.getElementById("loginModal").style.display = "none";
-document.getElementById("loginBtn").remove();
-
-let btn = document.createElement("button");
-btn.innerText = "+ add script";
-btn.onclick = () => {
-document.getElementById("addModal").style.display = "flex";
-};
-
-document.getElementById("topbar").appendChild(btn);
 }
 
 /* add script */
 function addScript() {
 let name = document.getElementById("name").value;
 let content = document.getElementById("content").value;
+let img = document.getElementById("img").value || "https://via.placeholder.com/80";
 
 if (!name || !content) return;
 
@@ -250,6 +222,8 @@ scripts.push({
 id: crypto.randomUUID(),
 name,
 content,
+img,
+likes: 0,
 date: new Date().toLocaleDateString()
 });
 
@@ -259,9 +233,25 @@ document.getElementById("addModal").style.display = "none";
 render();
 }
 
-/* open script page */
-function openScript(id) {
-window.location.href = "script.html?id=" + id;
+/* actions */
+function like(id) {
+let s = scripts.find(x => x.id === id);
+s.likes++;
+localStorage.setItem("scripts", JSON.stringify(scripts));
+render();
+}
+
+function copy(content) {
+navigator.clipboard.writeText(content);
+alert("copied");
+}
+
+function downloadScript(s) {
+let blob = new Blob([s.content], {type: "text/plain"});
+let a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = s.name + ".txt";
+a.click();
 }
 
 /* render */
@@ -270,14 +260,25 @@ let container = document.getElementById("container");
 container.innerHTML = "";
 
 scripts.forEach(s => {
+
 let div = document.createElement("div");
 div.className = "script";
 
-div.onclick = () => openScript(s.id);
-
 div.innerHTML = `
-<div class="namebox">${s.name}</div>
+<div class="scriptTop">
+<img src="${s.img}">
+<div>
+<div class="name">${s.name}</div>
 <div class="date">added ${s.date}</div>
+</div>
+</div>
+
+<div class="actions">
+<div class="tag">likes: ${s.likes}</div>
+<button onclick="like('${s.id}')">like</button>
+<button onclick="copy(\`${s.content}\`)">copy</button>
+<button onclick="downloadScript(${JSON.stringify(s).replace(/"/g, '&quot;')})">download</button>
+</div>
 `;
 
 container.appendChild(div);
