@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the scripts</title>
+
+<style>
+body {
+margin: 0;
+font-family: Arial;
+background: #050507;
+color: #e6e6e6;
+}
+
+/* top bar */
+#topbar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px;
+background: #0b0b10;
+border-bottom: 1px solid #151520;
+position: sticky;
+top: 0;
+}
+
+#title {
+font-size: 18px;
+letter-spacing: 3px;
+color: #c7c7ff;
+}
+
+#search {
+background: #0f0f16;
+border: 1px solid #1a1a22;
+color: #e6e6e6;
+padding: 8px;
+border-radius: 6px;
+outline: none;
+}
+
+#search:focus {
+border-color: #5a5aff;
+}
+
+/* container */
+#container {
+padding: 16px;
+}
+
+/* script cards */
+.script {
+background: #0b0b10;
+border: 1px solid #151520;
+padding: 12px;
+margin: 10px 0;
+border-radius: 8px;
+transition: 0.2s;
+}
+
+.script:hover {
+border-color: #3a3aff;
+transform: translateY(-1px);
+}
+
+.name {
+font-size: 16px;
+color: #e6e6e6;
+}
+
+.desc {
+font-size: 12px;
+color: #8a8a9a;
+margin-top: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="topbar">
+<div id="title">the scripts</div>
+<input id="search" placeholder="search scripts..." oninput="filterScripts()">
+</div>
+
+<div id="container">
+
+<div class="script">
+<div class="name">sprint system</div>
+<div class="desc">movement and stamina handling</div>
+</div>
+
+<div class="script">
+<div class="name">round system</div>
+<div class="desc">match flow and state control</div>
+</div>
+
+<div class="script">
+<div class="name">ui handler</div>
+<div class="desc">interface logic and updates</div>
+</div>
+
+</div>
+
+<script>
+function filterScripts() {
+let input = document.getElementById("search").value.toLowerCase();
+let scripts = document.getElementsByClassName("script");
+
+for (let s of scripts) {
+let text = s.innerText.toLowerCase();
+s.style.display = text.includes(input) ? "block" : "none";
+}
+}
+</script>
+
+</body>
+</html>
