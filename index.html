@@ -36,6 +36,15 @@ align-items: center;
 gap: 10px;
 }
 
+#menuBtn {
+font-size: 22px;
+cursor: pointer;
+padding: 4px 8px;
+border: 1px solid #2a2a2a;
+border-radius: 6px;
+}
+
+/* logo */
 #logo {
 width: 32px;
 height: 32px;
@@ -49,36 +58,58 @@ background: #111;
 font-weight: 900;
 }
 
-/* hamburger */
-#menuBtn {
-font-size: 22px;
-cursor: pointer;
-user-select: none;
-padding: 4px 8px;
+/* buttons */
+button {
+background: #0a0a0a;
+color: #fff;
 border: 1px solid #2a2a2a;
+padding: 7px 10px;
 border-radius: 6px;
+font-weight: 700;
+cursor: pointer;
 }
 
-/* sidebar */
+button:hover {
+border-color: #fff;
+}
+
+/* sidebar (fully hidden now) */
 #sidebar {
 position: fixed;
 top: 0;
-left: -220px;
-width: 200px;
+left: -260px;
+width: 220px;
 height: 100%;
 background: #0a0a0a;
 border-right: 1px solid #1a1a1a;
 padding: 16px;
 transition: 0.3s ease;
+z-index: 10;
 }
 
 #sidebar.open {
 left: 0;
 }
 
+/* sidebar header */
+#sideTop {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
+
 #sideTitle {
 font-weight: 900;
-margin-bottom: 10px;
+}
+
+/* X button */
+#closeBtn {
+cursor: pointer;
+font-size: 18px;
+border: 1px solid #2a2a2a;
+padding: 2px 8px;
+border-radius: 6px;
 }
 
 .cat {
@@ -94,15 +125,12 @@ font-size: 13px;
 padding: 16px;
 }
 
-/* script card */
+/* script */
 .script {
 border: 1px solid #1a1a1a;
 border-radius: 8px;
 padding: 12px;
 margin: 10px 0;
-display: flex;
-justify-content: space-between;
-align-items: center;
 background: #000;
 }
 
@@ -125,12 +153,17 @@ margin-top: 4px;
 <body>
 
 <div id="sidebar">
+
+<div id="sideTop">
 <div id="sideTitle">categories</div>
+<div id="closeBtn" onclick="toggleSidebar()">x</div>
+</div>
 
 <div class="cat">all</div>
 <div class="cat">ui</div>
 <div class="cat">combat</div>
 <div class="cat">systems</div>
+
 </div>
 
 <div id="topbar">
@@ -140,6 +173,8 @@ margin-top: 4px;
 <img id="logo" src="images/logo.png">
 <div id="title">thunder's scripts</div>
 </div>
+
+<button id="loginBtn" onclick="openLogin()">login</button>
 
 </div>
 
@@ -151,6 +186,17 @@ let sidebarOpen = false;
 function toggleSidebar() {
 sidebarOpen = !sidebarOpen;
 document.getElementById("sidebar").classList.toggle("open");
+}
+
+/* login system placeholder */
+function openLogin() {
+let pass = prompt("enter password");
+if (pass === "test") {
+alert("logged in");
+document.getElementById("loginBtn").remove();
+} else {
+alert("wrong password");
+}
 }
 
 /* demo scripts */
@@ -168,10 +214,8 @@ let div = document.createElement("div");
 div.className = "script";
 
 div.innerHTML = `
-<div>
 <div class="namebox">${s.name}</div>
 <div class="date">added ${s.date}</div>
-</div>
 `;
 
 container.appendChild(div);
