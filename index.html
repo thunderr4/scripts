@@ -8,25 +8,17 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-/* fade in */
 body {
 margin: 0;
 font-family: Inter, Arial;
 background: #000;
 color: #fff;
 opacity: 0;
-animation: fadein 0.6s ease forwards;
+animation: fadein 0.5s ease forwards;
 }
 
 @keyframes fadein {
-from {
-opacity: 0;
-transform: scale(0.99);
-}
-to {
-opacity: 1;
-transform: scale(1);
-}
+to { opacity: 1; }
 }
 
 /* top bar */
@@ -43,7 +35,6 @@ gap: 10px;
 display: flex;
 align-items: center;
 gap: 10px;
-min-width: 180px;
 }
 
 #logo {
@@ -57,7 +48,6 @@ background: #111;
 
 #title {
 font-weight: 900;
-white-space: nowrap;
 }
 
 /* search */
@@ -94,7 +84,6 @@ padding: 7px 10px;
 border-radius: 6px;
 font-weight: 700;
 cursor: pointer;
-white-space: nowrap;
 }
 
 button:hover {
@@ -109,52 +98,68 @@ padding: 16px;
 /* script card */
 .script {
 border: 1px solid #1a1a1a;
+border-radius: 8px;
 padding: 12px;
 margin: 10px 0;
-border-radius: 8px;
 display: flex;
 justify-content: space-between;
 align-items: center;
+background: #000;
 }
 
-.meta {
-display: flex;
-flex-direction: column;
-gap: 4px;
-}
-
-.name {
+/* fancy script name block */
+.namebox {
+background: #0a0a0a;
+border: 1px solid #1f1f1f;
+padding: 8px 10px;
+border-radius: 6px;
+display: inline-block;
 font-weight: 900;
-font-size: 15px;
 }
 
 .date {
 font-size: 12px;
 color: #aaa;
+margin-top: 4px;
 }
 
-/* popup */
-#popup {
+/* left side of card */
+.meta {
+display: flex;
+flex-direction: column;
+}
+
+/* modal background */
+.modal {
 position: fixed;
 inset: 0;
-background: rgba(0,0,0,0.8);
+background: rgba(0,0,0,0.85);
 display: none;
 align-items: center;
 justify-content: center;
 }
 
-#box {
+/* modal box */
+.box {
 background: #0a0a0a;
 border: 1px solid #2a2a2a;
-padding: 18px;
+padding: 16px;
 border-radius: 10px;
 width: 260px;
 display: flex;
 flex-direction: column;
 gap: 10px;
+text-align: center;
 }
 
-#box input {
+/* modal title */
+.boxtitle {
+font-weight: 900;
+font-size: 16px;
+}
+
+/* inputs */
+input {
 padding: 8px;
 background: #000;
 border: 1px solid #2a2a2a;
@@ -185,11 +190,21 @@ outline: none;
 
 <div id="container"></div>
 
-<!-- popup -->
-<div id="popup">
-<div id="box">
+<!-- login modal -->
+<div class="modal" id="loginModal">
+<div class="box">
+<div class="boxtitle">login</div>
 <input id="pass" placeholder="enter password">
 <button onclick="login()">enter</button>
+</div>
+</div>
+
+<!-- add script modal -->
+<div class="modal" id="addModal">
+<div class="box">
+<div class="boxtitle">add script</div>
+<input id="scriptName" placeholder="script name">
+<button onclick="addScript()">submit</button>
 </div>
 </div>
 
@@ -212,7 +227,7 @@ div.className = "script";
 
 div.innerHTML = `
 <div class="meta">
-<div class="name">${s.name}</div>
+<div class="namebox">${s.name}</div>
 <div class="date">added ${s.date}</div>
 </div>
 ${loggedIn ? `<button onclick="deleteScript(${i})">delete</button>` : ""}
@@ -223,18 +238,29 @@ container.appendChild(div);
 }
 
 function openLogin() {
-document.getElementById("popup").style.display = "flex";
+document.getElementById("loginModal").style.display = "flex";
 }
 
 function login() {
 let pass = document.getElementById("pass").value;
 
-if (pass !== "test") return;
+if (pass !== "test") {
+document.getElementById("loginModal").style.display = "none";
+alert("wrong password");
+return;
+}
 
 loggedIn = true;
-document.getElementById("popup").style.display = "none";
+document.getElementById("loginModal").style.display = "none";
+render();
+}
 
-let name = prompt("script name");
+function openAdd() {
+document.getElementById("addModal").style.display = "flex";
+}
+
+function addScript() {
+let name = document.getElementById("scriptName").value;
 if (!name) return;
 
 let date = new Date().toLocaleDateString();
@@ -242,6 +268,10 @@ let date = new Date().toLocaleDateString();
 scripts.push({ name, date });
 
 localStorage.setItem("scripts", JSON.stringify(scripts));
+
+document.getElementById("addModal").style.display = "none";
+document.getElementById("scriptName").value = "";
+
 render();
 }
 
@@ -252,6 +282,19 @@ scripts.splice(i, 1);
 localStorage.setItem("scripts", JSON.stringify(scripts));
 render();
 }
+
+/* inject add button only when logged in */
+setInterval(() => {
+let topbar = document.getElementById("topbar");
+
+if (loggedIn && !document.getElementById("addBtn")) {
+let btn = document.createElement("button");
+btn.innerText = "+ add script";
+btn.id = "addBtn";
+btn.onclick = openAdd;
+topbar.appendChild(btn);
+}
+}, 300);
 
 render();
 </script>
