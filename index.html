@@ -36,7 +36,6 @@ align-items: center;
 gap: 10px;
 }
 
-/* menu */
 #menuBtn {
 cursor: pointer;
 padding: 4px 8px;
@@ -45,7 +44,6 @@ border-radius: 6px;
 font-weight: 900;
 }
 
-/* logo */
 #logo {
 width: 34px;
 height: 34px;
@@ -55,7 +53,6 @@ border: 1px solid #2a2a2a;
 background: #111;
 }
 
-/* title */
 #title {
 font-weight: 900;
 }
@@ -65,10 +62,11 @@ button {
 background: #0a0a0a;
 color: #fff;
 border: 1px solid #2a2a2a;
-padding: 7px 10px;
+padding: 6px 10px;
 border-radius: 6px;
 font-weight: 900;
 cursor: pointer;
+margin-top: 6px;
 }
 
 button:hover {
@@ -97,7 +95,6 @@ left: 0;
 display: flex;
 justify-content: space-between;
 align-items: center;
-margin-bottom: 10px;
 }
 
 #closeBtn {
@@ -176,12 +173,10 @@ resize: none;
 
 <!-- sidebar -->
 <div id="sidebar">
-
 <div id="sideTop">
 <div style="font-weight:900;">categories</div>
 <div id="closeBtn" onclick="toggleSidebar()">x</div>
 </div>
-
 </div>
 
 <!-- topbar -->
@@ -189,9 +184,7 @@ resize: none;
 
 <div id="left">
 <div id="menuBtn" onclick="toggleSidebar()">☰</div>
-
 <img id="logo" src="images/logo.png">
-
 <div id="title">thunder's scripts</div>
 </div>
 
@@ -263,6 +256,8 @@ document.getElementById("addModal").style.display = "flex";
 };
 
 document.getElementById("topbar").appendChild(btn);
+
+render();
 }
 
 /* add script */
@@ -285,7 +280,16 @@ document.getElementById("addModal").style.display = "none";
 render();
 }
 
-/* open script page */
+/* delete */
+function deleteScript(i) {
+if (!loggedIn) return;
+
+scripts.splice(i, 1);
+localStorage.setItem("scripts", JSON.stringify(scripts));
+render();
+}
+
+/* open script */
 function openScript(id) {
 window.location.href = "script.html?id=" + id;
 }
@@ -295,7 +299,7 @@ function render() {
 let container = document.getElementById("container");
 container.innerHTML = "";
 
-scripts.forEach(s => {
+scripts.forEach((s, i) => {
 let div = document.createElement("div");
 div.className = "script";
 
@@ -304,6 +308,7 @@ div.onclick = () => openScript(s.id);
 div.innerHTML = `
 <div class="namebox">${s.name}</div>
 <div class="date">added ${s.date}</div>
+${loggedIn ? `<button onclick="event.stopPropagation(); deleteScript(${i})">delete</button>` : ""}
 `;
 
 container.appendChild(div);
